@@ -23,8 +23,8 @@ A precomputed set can be found [here](/SmilesTransformer/tokenizer/alphabet.dat)
 The transformer can be instantiated from a JSON file (i.e. [config.json](config.json))
 ```json
 {
-  "n_src_vocab": 43,
-  "n_tgt_vocab": 43,
+  "n_src_vocab": 44,
+  "n_tgt_vocab": 44,
   "len_max_seq": 100,
   "d_word_vec": 512,
   "d_model": 512,
