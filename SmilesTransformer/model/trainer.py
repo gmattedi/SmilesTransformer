@@ -1,41 +1,64 @@
-'''
+"""
 This script handling the training process.
-'''
+"""
+import logging
+import math
 import os
 import time
-import math
-from tqdm import tqdm
-import torch
-from model.eval import eval_performance
-import model.transformer.Constants as Constants
+from typing import Union, List
 
-from utils import logger
+import torch
+from torch.utils import data
+from tqdm import tqdm
+
+import SmilesTransformer.model.transformer.Constants as Constants
+from SmilesTransformer.model.eval import eval_performance
+from SmilesTransformer.utils import logger
 
 
 def train(
-        model, train_loader,
-        val_loader, optimizer,
-        device,
+        model: torch.Module, train_loader: data.DataLoader,
+        val_loader: data.DataLoader, optimizer,
+        device: Union[torch.device, str],
         label_smoothing: bool = False,
         n_epochs: int = 10,
-        checkpoint_folder: str = './',
-        logger=logger
-):
+        checkpoint_folder: str = "./",
+        logger: logging.Logger = logger
+) -> List[List[float]]:
+    """
+    Train the transformer
+
+    Args:
+        model (torch.Module): Transformer
+        train_loader (DataLoader):
+        val_loader (DataLoader):
+        optimizer:
+        device (Union[torch.device, str]):
+        label_smoothing (bool):
+        n_epochs (int):
+        checkpoint_folder (str):
+        logger (logging.logger): Logger
+
+    Returns:
+        history (List[List[float]]): Train/val loss and accuracy.
+            One list per epoch, in the form [train_loss, train_acc, valid_loss, valid_acc]
+
+    """
     history = []
     valid_accus = []
     for epoch_i in range(n_epochs):
-        logger.info(f'[ Epoch {epoch_i} ]')
+        logger.info(f"[ Epoch {epoch_i} ]")
 
         start = time.time()
         train_loss, train_accu = train_epoch(
             model, train_loader, optimizer, device, smoothing=label_smoothing)
-        logger.info('(Training)   ppl: {ppl: 8.5f}, accuracy: {accu:3.3f} %, time: {time:3.3f} min'.format(
+        logger.info("(Training)   ppl: {ppl: 8.5f}, accuracy: {accu:3.3f} %, time: {time:3.3f} min".format(
             ppl=math.exp(min(train_loss, 100)), accu=100 * train_accu,
             time=(time.time() - start) / 60))
 
         start = time.time()
         valid_loss, valid_accu = eval_epoch(model, val_loader, device)
-        logger.info('(Validation) ppl: {ppl: 8.5f}, accuracy: {accu:3.3f} %, time: {time:3.3f} min'.format(
+        logger.info("(Validation) ppl: {ppl: 8.5f}, accuracy: {accu:3.3f} %, time: {time:3.3f} min".format(
             ppl=math.exp(min(valid_loss, 100)), accu=100 * valid_accu,
             time=(time.time() - start) / 60))
 
@@ -43,13 +66,13 @@ def train(
 
         model_state_dict = model.state_dict()
         checkpoint = {
-            'model': model_state_dict,
-            'epoch': epoch_i}
+            "model": model_state_dict,
+            "epoch": epoch_i}
 
-        model_path = os.path.join(checkpoint_folder, 'model.ckpt')
+        model_path = os.path.join(checkpoint_folder, "model.ckpt")
         if valid_accu >= max(valid_accus):
             torch.save(checkpoint, model_path)
-            logger.info('The checkpoint file has been updated')
+            logger.info("Checkpoint file updated")
 
         history.append([
             train_loss, train_accu, valid_loss, valid_accu
@@ -59,7 +82,7 @@ def train(
 
 
 def train_epoch(model, training_data, optimizer, device, smoothing):
-    ''' Epoch operation in training phase'''
+    """ Epoch operation in training phase"""
 
     model.train()
 
@@ -69,7 +92,7 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
 
     for batch in tqdm(
             training_data, mininterval=2,
-            desc='  - (Training)   ', leave=False):
+            desc="(Training)   ", leave=False):
         # prepare data
         src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
         gold = tgt_seq[:, 1:]
@@ -99,7 +122,7 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
 
 
 def eval_epoch(model, validation_data, device):
-    ''' Epoch operation in evaluation phase '''
+    """ Epoch operation in evaluation phase """
 
     model.eval()
 
@@ -110,7 +133,7 @@ def eval_epoch(model, validation_data, device):
     with torch.no_grad():
         for batch in tqdm(
                 validation_data, mininterval=2,
-                desc='  - (Validation) ', leave=False):
+                desc="(Validation) ", leave=False):
             # prepare data
             src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
             gold = tgt_seq[:, 1:]

@@ -10,7 +10,7 @@ import model.transformer.Constants as Constants
 
 
 class Beam():
-    ''' Beam search '''
+    """ Beam search """
 
     def __init__(self, size, device=False):
 

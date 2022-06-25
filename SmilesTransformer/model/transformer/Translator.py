@@ -1,4 +1,4 @@
-''' This module will handle the text generation with beam search. '''
+""" This module will handle the text generation with beam search. """
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -7,14 +7,14 @@ from model.transformer.Beam import Beam
 
 
 class Translator(object):
-    ''' Load with trained model and handle the beam search '''
+    """ Load with trained model and handle the beam search """
 
     def __init__(self, args):
         self.args = args
-        self.device = torch.device('cuda' if args.cuda else 'cpu')
+        self.device = torch.device("cuda" if args.cuda else "cpu")
 
         checkpoint = torch.load(args.model)
-        model_opt = checkpoint['settings']
+        model_opt = checkpoint["settings"]
         self.model_opt = model_opt
 
         model = Transformer(
@@ -32,8 +32,8 @@ class Translator(object):
             n_head=model_opt.n_head,
             dropout=model_opt.dropout)
 
-        model.load_state_dict(checkpoint['model'])
-        print('[Info] Trained model state loaded.')
+        model.load_state_dict(checkpoint["model"])
+        print("[Info] Trained model state loaded.")
 
         model.word_prob_prj = nn.LogSoftmax(dim=1)
 
@@ -43,14 +43,14 @@ class Translator(object):
         self.model.eval()
 
     def translate_batch(self, src_seq, src_pos):
-        ''' Translation work in one batch '''
+        """ Translation work in one batch """
 
         def get_inst_idx_to_tensor_position_map(inst_idx_list):
-            ''' Indicate the position of an instance in a tensor. '''
+            """ Indicate the position of an instance in a tensor. """
             return {inst_idx: tensor_position for tensor_position, inst_idx in enumerate(inst_idx_list)}
 
         def collect_active_part(beamed_tensor, curr_active_inst_idx, n_prev_active_inst, n_bm):
-            ''' Collect tensor parts associated to active instances. '''
+            """ Collect tensor parts associated to active instances. """
 
             _, *d_hs = beamed_tensor.size()
             n_curr_active_inst = len(curr_active_inst_idx)
@@ -76,7 +76,7 @@ class Translator(object):
             return active_src_seq, active_src_enc, active_inst_idx_to_position_map
 
         def beam_decode_step(inst_dec_beams, len_dec_seq, src_seq, enc_output, inst_idx_to_position_map, n_bm):
-            ''' Decode and update beam status, and then return active beam idx '''
+            """ Decode and update beam status, and then return active beam idx """
             def prepare_beam_dec_seq(inst_dec_beams, len_dec_seq):
                 dec_partial_seq = [b.get_current_state() for b in inst_dec_beams if not b.done]
                 dec_partial_seq = torch.stack(dec_partial_seq).to(self.device)

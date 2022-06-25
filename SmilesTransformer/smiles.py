@@ -9,26 +9,26 @@ from SmilesTransformer.model.trainer import train
 from SmilesTransformer.utils import logger
 from SmilesTransformer.utils import output2smiles
 
-RDLogger.DisableLog('rdApp.*')
+RDLogger.DisableLog("rdApp.*")
 
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-logger.info(f'Device: {device}')
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+logger.info(f"Device: {device}")
 
-logger.info('Creating training loader')
+logger.info("Creating training loader")
 train_loader, token2idx, idx2token = build_loader(
-    csv_path='../data/chembl_30/chembl_30_chemreps_proc_train.csv.gz',
-    src_col='SMILES', tgt_col='SMILES', alphabet_path='tokenizer/alphabet.dat',
+    csv_path="../data/chembl_30/chembl_30_chemreps_proc_train.csv.gz",
+    src_col="SMILES", tgt_col="SMILES", alphabet_path="tokenizer/alphabet.dat",
     sample=100, random_state=123, batch_size=64, num_workers=10, augment_times=1
 )
 
-logger.info('Creating validation loader')
+logger.info("Creating validation loader")
 val_loader, _, _ = build_loader(
-    csv_path='../data/chembl_30/chembl_30_chemreps_proc_valid.csv.gz',
-    src_col='SMILES', tgt_col='SMILES', alphabet_path='tokenizer/alphabet.dat',
+    csv_path="../data/chembl_30/chembl_30_chemreps_proc_valid.csv.gz",
+    src_col="SMILES", tgt_col="SMILES", alphabet_path="tokenizer/alphabet.dat",
     sample=50, random_state=123, batch_size=64, num_workers=10, augment_times=1
 )
 
-logger.info('Instantiating the transformer')
+logger.info("Instantiating the transformer")
 transformer = Transformer(
     n_src_vocab=len(token2idx),
     n_tgt_vocab=len(token2idx),
@@ -47,12 +47,12 @@ optimizer = ScheduledOptim(
         betas=(0.9, 0.98), eps=1e-09),
     512, 4000)
 
-logger.info('Training')
+logger.info("Training")
 history = train(transformer, train_loader, val_loader, optimizer, device, n_epochs=10)
 
-logger.info('Training finished')
+logger.info("Training finished")
 
-logger.info('Converting validation output to SMILES')
+logger.info("Converting validation output to SMILES")
 
 _ = transformer.eval()
 
@@ -73,4 +73,4 @@ output_mol = list(map(Chem.MolFromSmiles, output_smi))
 output_mol_valid = list(filter(None, output_mol))
 fraction_valid = len(output_mol_valid) / len(output_mol)
 
-logger.info(f'Valid molecules: {len(output_mol_valid)}/{len(output_mol)} ({fraction_valid * 100:.2f} %)')
+logger.info(f"Valid molecules: {len(output_mol_valid)}/{len(output_mol)} ({fraction_valid * 100:.2f} %)")

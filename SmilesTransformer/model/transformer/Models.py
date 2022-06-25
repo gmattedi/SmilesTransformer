@@ -1,4 +1,4 @@
-''' Define the Transformer model '''
+""" Define the Transformer model """
 import numpy as np
 import torch
 import torch.nn as nn
@@ -8,7 +8,7 @@ from SmilesTransformer.model.transformer.Layers import EncoderLayer, DecoderLaye
 
 
 class Encoder(nn.Module):
-    ''' A encoder model with self attention mechanism. '''
+    """ A encoder model with self attention mechanism. """
 
     def __init__(
             self,
@@ -56,7 +56,7 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    ''' A decoder model with self attention mechanism. '''
+    """ A decoder model with self attention mechanism. """
 
     def __init__(
             self,
@@ -111,7 +111,7 @@ class Decoder(nn.Module):
 
 
 class Transformer(nn.Module):
-    ''' A sequence to sequence model with attention mechanism. '''
+    """ A sequence to sequence model with attention mechanism. """
 
     def __init__(
             self,
@@ -139,8 +139,8 @@ class Transformer(nn.Module):
         nn.init.xavier_normal_(self.tgt_word_prj.weight)
 
         assert d_model == d_word_vec, \
-            'To facilitate the residual connections, \
-             the dimensions of all module outputs shall be the same.'
+            "To facilitate the residual connections, \
+             the dimensions of all module outputs shall be the same."
 
         if tgt_emb_prj_weight_sharing:
             # Share the weight matrix between target word embedding & the final logit dense layer
@@ -174,7 +174,7 @@ def get_non_pad_mask(seq):
 
 
 def get_sinusoid_encoding_table(n_position, d_hid, padding_idx=None):
-    ''' Sinusoid position encoding table '''
+    """ Sinusoid position encoding table """
 
     def cal_angle(position, hid_idx):
         return position / np.power(10000, 2 * (hid_idx // 2) / d_hid)
@@ -195,7 +195,7 @@ def get_sinusoid_encoding_table(n_position, d_hid, padding_idx=None):
 
 
 def get_attn_key_pad_mask(seq_k, seq_q):
-    ''' For masking out the padding part of key sequence. '''
+    """ For masking out the padding part of key sequence. """
 
     # Expand to fit the shape of key query attention matrix.
     len_q = seq_q.size(1)
@@ -206,7 +206,7 @@ def get_attn_key_pad_mask(seq_k, seq_q):
 
 
 def get_subsequent_mask(seq):
-    ''' For masking out the subsequent info. '''
+    """ For masking out the subsequent info. """
 
     sz_b, len_s = seq.size()
     subsequent_mask = torch.triu(

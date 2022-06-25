@@ -1,13 +1,13 @@
-'''
+"""
 This script handling the calculation of performance and loss.
-'''
+"""
 import torch
 import torch.nn.functional as F
-import model.transformer.Constants as Constants
+from SmilesTransformer.model.transformer import Constants
 
 
 def eval_performance(pred, gold, smoothing=False):
-    ''' Apply label smoothing if needed '''
+    """ Apply label smoothing if needed """
 
     loss = cal_loss(pred, gold, smoothing)
 
@@ -21,7 +21,7 @@ def eval_performance(pred, gold, smoothing=False):
 
 
 def cal_loss(pred, gold, smoothing=False):
-    ''' Calculate cross entropy loss, apply label smoothing if needed. '''
+    """ Calculate cross entropy loss, apply label smoothing if needed. """
 
     gold = gold.contiguous().view(-1)
 

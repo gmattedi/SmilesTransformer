@@ -21,18 +21,37 @@ class RegexTokenizer:
         self.regex = re.compile(self.regex_pattern)
 
     def tokenize(self, text: str, bos_token=Constants.BOS_WORD, eos_token=Constants.EOS_WORD) -> List[str]:
-        """Regex tokenization.
+        """
+        Tokenize input text
+
         Args:
-            text: text to tokenize.
+            text (str): Text
+            bos_token (str): Beginning of sentence token
+            eos_token (str): End of sentence token
+
         Returns:
-            extracted tokens separated by spaces.
+            tokens (List[str]): Tokenized input
+
         """
         tokens = [token for token in self.regex.findall(text)]
         tokens = [bos_token] + tokens + [eos_token]
         return tokens
 
 
-def build_vocabulary(smiles_lst: Sequence[str]) -> Dict[str, int]:
+def build_vocabulary(smiles_lst: Sequence[str], min_occurrences: int = 5) -> Dict[str, int]:
+    """
+    Build a token -> index mapping given a list of smiles string.
+    Uses SmilesTransformer.tokenizer.RegexTokenizer
+
+    Args:
+        smiles_lst (Sequence[str])
+        min_occurrences (int): Minimum number of occurrences for the token
+            to be added to the vocabulary
+
+    Returns:
+        token2idx (Dict[str, int]): Token -> index mapping
+
+    """
     tokenizer = RegexTokenizer()
 
     tokens = [tokenizer.tokenize(smi) for smi in smiles_lst]
@@ -42,7 +61,7 @@ def build_vocabulary(smiles_lst: Sequence[str]) -> Dict[str, int]:
 
     i = 0
     for t, c in zip(unique_tokens, unique_counts):
-        if c <= 5:
+        if c <= min_occurrences:
             continue
         else:
             token2idx[t] = i
@@ -57,7 +76,19 @@ def build_vocabulary(smiles_lst: Sequence[str]) -> Dict[str, int]:
     return token2idx
 
 
-def load_mapping(alphabet_path: str, sep: str = '\n') -> Tuple[Dict[str, int], Dict[int, str]]:
+def load_mapping(alphabet_path: str, sep: str = "\n") -> Tuple[Dict[str, int], Dict[int, str]]:
+    """
+    Return Token -> index and index -> token mapping from a file containing the alphabet
+
+    Args:
+        alphabet_path (str): `sep`-separated file containing the list of token
+        sep (str): Token separator in the file
+
+    Returns:
+        token2idx (Dict[str, int]): Token -> index mapping
+        idx2token (Dict[int, str]): Index -> token mapping
+
+    """
     with open(alphabet_path) as handle:
         alphabet = handle.read().split(sep)
 
@@ -67,20 +98,32 @@ def load_mapping(alphabet_path: str, sep: str = '\n') -> Tuple[Dict[str, int], D
     return token2idx, idx2token
 
 
-def dense_onehot(tokens, token2idx: Dict[str, int]):
-    """Mapping words to idx sequence"""
+def dense_onehot(tokens: Sequence[str], token2idx: Dict[str, int]) -> List[int]:
+    """
+    Map tokens to idx sequence.
+    If a token is not found in `token2idx`, then the UNK_WORK index is used
+    Args:
+        tokens (Sequence[str])
+        token2idx (Dict[str, int])
+
+    Returns:
+        onehot (Sequence[int])
+
+    """
     return [token2idx.get(w, token2idx[Constants.UNK_WORD]) for w in tokens]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+
+    # Build alphabet from training set
     import pandas as pd
 
-    chembl = pd.read_csv('../../data/chembl_30/chembl_30_chemreps_proc_train.csv.gz').sample(100)
+    chembl = pd.read_csv("../../data/chembl_30/chembl_30_chemreps_proc_train.csv.gz")
     smiles = chembl.SMILES.values
 
     token2idx = build_vocabulary(smiles)
     idx2token = {i: token for token, i in token2idx.items()}
     vocab = [idx2token[i] for i in range(len(idx2token))]
 
-    with open('alphabet.dat', 'wt') as handle:
-        handle.write('\n'.join(vocab))
+    with open("alphabet.dat", "wt") as handle:
+        handle.write("\n".join(vocab))
