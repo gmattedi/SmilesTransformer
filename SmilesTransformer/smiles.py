@@ -2,7 +2,9 @@ import torch.utils.data
 from rdkit import Chem, RDLogger
 
 from SmilesTransformer.loaders import build_loader
-from SmilesTransformer.model import Transformer, Constants, ScheduledOptim
+from SmilesTransformer.model.transformer.Models import Transformer
+from SmilesTransformer.model.transformer import Constants
+from SmilesTransformer.model.transformer.Optim import ScheduledOptim
 from SmilesTransformer.model.trainer import train
 from SmilesTransformer.utils import logger
 from SmilesTransformer.utils import output2smiles

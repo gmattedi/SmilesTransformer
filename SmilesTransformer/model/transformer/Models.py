@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from SmilesTransformer.model import Constants
+from SmilesTransformer.model.transformer import Constants
 from SmilesTransformer.model.transformer.Layers import EncoderLayer, DecoderLayer
 
 
