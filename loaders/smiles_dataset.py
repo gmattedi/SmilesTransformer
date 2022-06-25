@@ -39,13 +39,11 @@ def build_loader(
 
         src_smiles, tgt_smiles = list(zip(*list(pairs)))
 
-    print(len(src_smiles), len(tgt_smiles))
-
     src_tokens = [tokenizer.tokenize(smi) for smi in src_smiles]
     tgt_tokens = [tokenizer.tokenize(smi) for smi in tgt_smiles]
 
-    src_onehot = [dense_onehot(t, token2idx) for t in src_smiles]
-    tgt_onehot = [dense_onehot(t, token2idx) for t in tgt_smiles]
+    src_onehot = [dense_onehot(t, token2idx) for t in src_tokens]
+    tgt_onehot = [dense_onehot(t, token2idx) for t in tgt_tokens]
 
     loader = torch.utils.data.DataLoader(
         SeqDataset(
