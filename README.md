@@ -1,35 +1,58 @@
-# transformer-pytorch
-A PyTorch implementation of transformer for text generation.
+# SMILES Transformer
 
-## Dependencies
-- Python 3.x
-- PyTorch >= 0.4
-- tqdm
-- numpy
+### A SMILES-to-SMILES Transformer implementation
 
-## Dataset
-We need to place all train/validation/test data files under the ```data``` directory,
-all the files are in the same format, i.e., each sequence (sentence or document)
-converted to tokenized words per line. The example data we used is
-the [WMT'16 Multimodal Translation (en-de)](http://www.statmt.org/wmt16/multimodal-task.html).
+## Input data
 
-## Quick Start
-* Preprocess data
-```
-python3 preprocess.py -train_src=data/train_example.en -train_tgt=./data/train_example.de -valid_src=data/val_example.en -valid_tgt=data/val_example.de -save_data=data/en2de.pkl
+Any set of SMILES or pairs of SMILES strings in CSV-like format can be used.  
+A cleaned version of ChEMBL 30 is provided in [data/chembl_30](/data/chembl_30).
+
+## Generating the token alphabet
+
+The token alphabet can be generated from the ChEMBL training set with
+
+```console
+cd SmilesTransformer/tokenizer
+python tokenizer.py
+# Tokens are saved in alphabet.dat
 ```
 
-* Training
-```
-python3 main_train.py -data=./data/en2de.pkl -log=./log -save_model=train -save_mode=all -proj_share_weight -label_smoothing
+A precomputed set can be found [here](/SmilesTransformer/tokenizer/alphabet.dat).
+
+## Training the model
+
+You can train the model on a training and validation subsample of ChEMBL 30 of 1000 and 50 molecules, respectively, by:
+
+```console
+python SmilesTransformer/main.py \
+    -c config.json \
+    --train_path data/chembl_30/chembl_30_chemreps_proc_train.csv.gz \
+    --val_path data/chembl_30/chembl_30_chemreps_proc_valid.csv.gz \
+    --alphabet_path SmilesTransformer/tokenizer/alphabet.dat \
+    --sample_train 1000 \
+    --sample_val 50 \
+    --train_batch_size 64 \
+    --val_batch_size 64 \
+    --src_smiles_col SMILES \
+    --tgt_smiles_col SMILES \
+    --num_epochs 10 --augment 1 --checkpoint_folder .
 ```
 
-* Testing
-```
-python3 main_test.py -model=./log/train_xxx_xxx.ckpt -vocab=./data/en2de.pkl -src=./data/test_example.en -output_dir=./output
-```
+In this case we are training the transformer to reconstruct the original SMILES strings,
+but this can be trivially adapted to predicting to different target SMILES strings by
+providing training and test CSV files of pairs of molecules.
+
+## Credits
+
+This repository uses the vanilla transformer implementation
+by [siat-nlp](https://github.com/siat-nlp/transformer-pytorch).  
+The SMILES tokenization regex pattern is from
+the [Molecular Transformer](https://github.com/pschwllr/MolecularTransformer).
 
 ## References
-[1] Vaswani et al., [Attention Is All You Need](http://papers.nips.cc/paper/7181-attention-is-all-you-need.pdf), NIPS(2017). 
 
-[2] A PyTorch implementation [attention-is-all-you-need-pytorch](https://github.com/jadore801120/attention-is-all-you-need-pytorch).
+[1] Vaswani et al., [Attention Is All You Need](http://papers.nips.cc/paper/7181-attention-is-all-you-need.pdf), NIPS(
+2017).
+
+[2] A PyTorch
+implementation [attention-is-all-you-need-pytorch](https://github.com/jadore801120/attention-is-all-you-need-pytorch).

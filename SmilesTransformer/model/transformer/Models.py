@@ -6,6 +6,8 @@ import torch.nn as nn
 from SmilesTransformer.model.transformer import Constants
 from SmilesTransformer.model.transformer.Layers import EncoderLayer, DecoderLayer
 
+import json
+
 
 class Encoder(nn.Module):
     """ A encoder model with self attention mechanism. """
@@ -164,6 +166,21 @@ class Transformer(nn.Module):
         seq_logit = self.tgt_word_prj(dec_output) * self.x_logit_scale
 
         return seq_logit.view(-1, seq_logit.size(2))
+
+    @classmethod
+    def from_config(cls, json_path: str):
+        """
+        Instantiate the transformer with settings in JSON format
+        Args:
+            json_path: str
+
+        Returns:
+
+        """
+        with open(json_path) as handle:
+            config = json.load(handle)
+        model = cls(**config)
+        return model
 
 
 # Define some helper functions

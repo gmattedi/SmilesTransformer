@@ -7,6 +7,7 @@ import os
 import time
 from typing import Union, List
 
+from torch import nn
 import torch
 from torch.utils import data
 from tqdm import tqdm
@@ -17,7 +18,7 @@ from SmilesTransformer.utils import logger
 
 
 def train(
-        model: torch.Module, train_loader: data.DataLoader,
+        model: nn.Module, train_loader: data.DataLoader,
         val_loader: data.DataLoader, optimizer,
         device: Union[torch.device, str],
         label_smoothing: bool = False,
