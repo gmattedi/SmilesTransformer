@@ -9,7 +9,7 @@ A cleaned version of ChEMBL 30 is provided in [data/chembl_30](/data/chembl_30).
 
 ## Generating the token alphabet
 
-The token alphabet can be generated from the ChEMBL training set with
+The token alphabet can be generated from the ChEMBL training set with:
 
 ```console
 cd SmilesTransformer/tokenizer
@@ -20,7 +20,9 @@ python tokenizer.py
 A precomputed set can be found [here](/SmilesTransformer/tokenizer/alphabet.dat).
 
 ## Model configuration
+
 The transformer can be instantiated from a JSON file (i.e. [config.json](config.json))
+
 ```json
 {
   "n_src_vocab": 44,
@@ -38,6 +40,7 @@ The transformer can be instantiated from a JSON file (i.e. [config.json](config.
   "emb_src_tgt_weight_sharing": true
 }
 ```
+
 In the example provided, the alphabet length is that of the tokens of the ChEMBL 30 training set
 
 ## Training the model
@@ -58,6 +61,9 @@ python SmilesTransformer/main.py \
     --tgt_smiles_col SMILES \
     --num_epochs 10 --augment 1 --checkpoint_folder .
 ```
+
+This training set size is not nearly enough to get any meaningful performance, but demonstrates the basic functioning of
+the model.
 
 In this case we are training the transformer to reconstruct the original SMILES strings,
 but this can be trivially adapted to predicting to different target SMILES strings by
