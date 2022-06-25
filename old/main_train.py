@@ -5,7 +5,7 @@ import torch
 import torch.utils.data
 from transformer.Models import Transformer
 from transformer.Optim import ScheduledOptim
-from dataset import SeqDataset, paired_collate_fn
+from loaders.base import SeqDataset, paired_collate_fn
 from trainer import train
 
 

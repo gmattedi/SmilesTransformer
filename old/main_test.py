@@ -4,7 +4,7 @@ import torch
 import torch.utils.data
 import argparse
 from tqdm import tqdm
-from dataset import collate_fn, SeqDataset
+from loaders.base import collate_fn, SeqDataset
 from transformer.Translator import Translator
 from preprocess import load_file, convert_w2id_seq
 
