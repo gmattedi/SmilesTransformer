@@ -129,6 +129,5 @@ dmypy.json
 .pyre/
 
 .idea/
-output/*finetune.csv
-output/*finetune.pt
 *.ipynb
+*.ckpt
