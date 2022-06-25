@@ -19,6 +19,27 @@ python tokenizer.py
 
 A precomputed set can be found [here](/SmilesTransformer/tokenizer/alphabet.dat).
 
+## Model configuration
+The transformer can be instantiated from a JSON file (i.e. [config.json](config.json))
+```json
+{
+  "n_src_vocab": 43,
+  "n_tgt_vocab": 43,
+  "len_max_seq": 100,
+  "d_word_vec": 512,
+  "d_model": 512,
+  "d_inner": 2048,
+  "n_layers": 6,
+  "n_head": 8,
+  "d_k": 64,
+  "d_v": 64,
+  "dropout": 0.1,
+  "tgt_emb_prj_weight_sharing": true,
+  "emb_src_tgt_weight_sharing": true
+}
+```
+In the example provided, the alphabet length is that of the tokens of the ChEMBL 30 training set
+
 ## Training the model
 
 You can train the model on a training and validation subsample of ChEMBL 30 of 1000 and 50 molecules, respectively, by:

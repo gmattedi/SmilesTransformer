@@ -1,6 +1,6 @@
 {
-  "n_src_vocab": 44,
-  "n_tgt_vocab": 44,
+  "n_src_vocab": 43,
+  "n_tgt_vocab": 43,
   "len_max_seq": 100,
   "d_word_vec": 512,
   "d_model": 512,
