@@ -1,6 +1,7 @@
 '''
 This script handling the training process.
 '''
+import os
 import time
 import math
 from tqdm import tqdm
@@ -8,43 +9,35 @@ import torch
 from eval import eval_performance
 import transformer.Constants as Constants
 
+from utils import logger
+
 
 def train(
-    model, training_data,
-    validation_data, optimizer,
-    device,
-    label_smoothing: bool = False,
-    n_epochs: int = 10,
-    model_name: str = 'transformer',
-    log_dir: str = './log/'
+        model, train_loader,
+        val_loader, optimizer,
+        device,
+        label_smoothing: bool = False,
+        n_epochs: int = 10,
+        checkpoint_folder: str = './',
+        logger=logger
 ):
-    ''' Start training '''
-    log_train_file = log_dir + '/train.log'
-    log_valid_file = log_dir + '/valid.log'
-
-    print('[Info] Training performance will be written to file: {} and {}'.format(
-        log_train_file, log_valid_file))
-
-    with open(log_train_file, 'w') as log_tf, open(log_valid_file, 'w') as log_vf:
-        log_tf.write('epoch, loss, ppl, accuracy\n')
-        log_vf.write('epoch, loss, ppl, accuracy\n')
-
+    history = []
     valid_accus = []
     for epoch_i in range(n_epochs):
-        print('[ Epoch', epoch_i, ']')
+        logger.info(f'[ Epoch {epoch_i} ]')
 
         start = time.time()
         train_loss, train_accu = train_epoch(
-            model, training_data, optimizer, device, smoothing=label_smoothing)
-        print('  - (Training)   ppl: {ppl: 8.5f}, accuracy: {accu:3.3f} %, time: {time:3.3f} min'.format(
-            ppl=math.exp(min(train_loss, 100)), accu=100*train_accu,
-            time=(time.time()-start)/60))
+            model, train_loader, optimizer, device, smoothing=label_smoothing)
+        logger.info('(Training)   ppl: {ppl: 8.5f}, accuracy: {accu:3.3f} %, time: {time:3.3f} min'.format(
+            ppl=math.exp(min(train_loss, 100)), accu=100 * train_accu,
+            time=(time.time() - start) / 60))
 
         start = time.time()
-        valid_loss, valid_accu = eval_epoch(model, validation_data, device)
-        print('  - (Validation) ppl: {ppl: 8.5f}, accuracy: {accu:3.3f} %, time: {time:3.3f} min'.format(
-            ppl=math.exp(min(valid_loss, 100)), accu=100*valid_accu,
-            time=(time.time()-start)/60))
+        valid_loss, valid_accu = eval_epoch(model, val_loader, device)
+        logger.info('(Validation) ppl: {ppl: 8.5f}, accuracy: {accu:3.3f} %, time: {time:3.3f} min'.format(
+            ppl=math.exp(min(valid_loss, 100)), accu=100 * valid_accu,
+            time=(time.time() - start) / 60))
 
         valid_accus += [valid_accu]
 
@@ -53,19 +46,16 @@ def train(
             'model': model_state_dict,
             'epoch': epoch_i}
 
-        model_path = log_dir + '/' + model_name + '.ckpt'
+        model_path = os.path.join(checkpoint_folder, 'model.ckpt')
         if valid_accu >= max(valid_accus):
             torch.save(checkpoint, model_path)
-            print('    - [Info] The checkpoint file has been updated.')
+            logger.info('The checkpoint file has been updated')
 
-        if log_train_file and log_valid_file:
-            with open(log_train_file, 'a') as log_tf, open(log_valid_file, 'a') as log_vf:
-                log_tf.write('{epoch}, {loss: 8.5f}, {ppl: 8.5f}, {accu:3.3f}\n'.format(
-                    epoch=epoch_i, loss=train_loss,
-                    ppl=math.exp(min(train_loss, 100)), accu=100*train_accu))
-                log_vf.write('{epoch}, {loss: 8.5f}, {ppl: 8.5f}, {accu:3.3f}\n'.format(
-                    epoch=epoch_i, loss=valid_loss,
-                    ppl=math.exp(min(valid_loss, 100)), accu=100*valid_accu))
+        history.append([
+            train_loss, train_accu, valid_loss, valid_accu
+        ])
+
+    return history
 
 
 def train_epoch(model, training_data, optimizer, device, smoothing):
@@ -80,7 +70,6 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
     for batch in tqdm(
             training_data, mininterval=2,
             desc='  - (Training)   ', leave=False):
-
         # prepare data
         src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
         gold = tgt_seq[:, 1:]
@@ -104,8 +93,8 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
         n_word_total += n_word
         n_word_correct += n_correct
 
-    loss_per_word = total_loss/n_word_total
-    accuracy = n_word_correct/n_word_total
+    loss_per_word = total_loss / n_word_total
+    accuracy = n_word_correct / n_word_total
     return loss_per_word, accuracy
 
 
@@ -122,7 +111,6 @@ def eval_epoch(model, validation_data, device):
         for batch in tqdm(
                 validation_data, mininterval=2,
                 desc='  - (Validation) ', leave=False):
-
             # prepare data
             src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
             gold = tgt_seq[:, 1:]
@@ -139,6 +127,6 @@ def eval_epoch(model, validation_data, device):
             n_word_total += n_word
             n_word_correct += n_correct
 
-    loss_per_word = total_loss/n_word_total
-    accuracy = n_word_correct/n_word_total
+    loss_per_word = total_loss / n_word_total
+    accuracy = n_word_correct / n_word_total
     return loss_per_word, accuracy

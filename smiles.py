@@ -14,23 +14,32 @@ from rdkit import Chem, RDLogger
 from rdkit.Chem import Draw
 import tqdm as t
 
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+RDLogger.DisableLog('rdApp.*')
 
-train_loader = build_loader(
+from utils import logger
+
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+logger.info(f'Device: {device}')
+
+
+logger.info('Creating training loader')
+train_loader, token2idx, idx2token = build_loader(
     csv_path='data/chembl_30/chembl_30_chemreps_proc_train.csv.gz',
     src_col='SMILES', tgt_col='SMILES', alphabet_path='tokenizer/alphabet.dat',
     sample=100000, random_state=123, batch_size=64, num_workers=10, augment_times=1
 )
 
-val_loader = build_loader(
+logger.info('Creating validation loader')
+val_loader, _, _ = build_loader(
     csv_path='data/chembl_30/chembl_30_chemreps_proc_val.csv.gz',
     src_col='SMILES', tgt_col='SMILES', alphabet_path='tokenizer/alphabet.dat',
     sample=5000, random_state=123, batch_size=64, num_workers=10, augment_times=1
 )
 
+logger.info('Instantiating the transformer')
 transformer = Transformer(
-    n_src_vocab=train_loader.src_vocab_size,
-    n_tgt_vocab=train_loader.tgt_vocab_size,
+    n_src_vocab=len(token2idx),
+    n_tgt_vocab=len(token2idx),
     len_max_seq=100,
     d_word_vec=512, d_model=512, d_inner=2048,
     n_layers=6, n_head=8,
@@ -39,6 +48,7 @@ transformer = Transformer(
     tgt_emb_prj_weight_sharing=True,
     emb_src_tgt_weight_sharing=True
 ).to(device)
+logger.info(transformer)
 
 optimizer = ScheduledOptim(
     torch.optim.Adam(
@@ -54,11 +64,9 @@ print('  - (Validation) ppl: {ppl: 8.5f}, accuracy: {accu:3.3f} %'.format(
 
 # Train
 
-train(transformer, train_loader, val_loader, optimizer, device, n_epochs=10)
+history = train(transformer, train_loader, val_loader, optimizer, device, n_epochs=10)
 
 # Evaluate
-
-RDLogger.DisableLog('rdApp.*')
 
 _ = transformer.eval()
 

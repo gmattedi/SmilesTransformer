@@ -58,4 +58,4 @@ def build_loader(
         collate_fn=paired_collate_fn,
         shuffle=True)
 
-    return loader
+    return loader, token2idx, idx2token
