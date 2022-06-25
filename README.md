@@ -66,7 +66,7 @@ This training set size is not nearly enough to get any meaningful performance, b
 the model.
 
 In this case we are training the transformer to reconstruct the original SMILES strings,
-but this can be trivially adapted to predicting to different target SMILES strings by
+but this can be trivially adapted to predicting different target SMILES strings by
 providing training and test CSV files of pairs of molecules.
 
 ## Credits
