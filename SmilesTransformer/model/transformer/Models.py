@@ -1,9 +1,10 @@
 ''' Define the Transformer model '''
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
-import model.transformer.Constants as Constants
-from model.transformer.Layers import EncoderLayer, DecoderLayer
+
+from SmilesTransformer.model import Constants
+from SmilesTransformer.model.transformer.Layers import EncoderLayer, DecoderLayer
 
 
 class Encoder(nn.Module):
@@ -138,8 +139,8 @@ class Transformer(nn.Module):
         nn.init.xavier_normal_(self.tgt_word_prj.weight)
 
         assert d_model == d_word_vec, \
-        'To facilitate the residual connections, \
-         the dimensions of all module outputs shall be the same.'
+            'To facilitate the residual connections, \
+             the dimensions of all module outputs shall be the same.'
 
         if tgt_emb_prj_weight_sharing:
             # Share the weight matrix between target word embedding & the final logit dense layer
@@ -151,7 +152,7 @@ class Transformer(nn.Module):
         if emb_src_tgt_weight_sharing:
             # Share the weight matrix between source & target word embeddings
             assert n_src_vocab == n_tgt_vocab, \
-            "To share word embedding table, the vocabulary size of src/tgt shall be the same."
+                "To share word embedding table, the vocabulary size of src/tgt shall be the same."
             self.encoder.src_word_emb.weight = self.decoder.tgt_word_emb.weight
 
     def forward(self, src_seq, src_pos, tgt_seq, tgt_pos):
