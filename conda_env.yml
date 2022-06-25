@@ -1,0 +1,11 @@
+name: smiles-transformer
+channels:
+  - conda-forge
+  - pytorch
+dependencies:
+  - numpy
+  - pandas
+  - pytorch
+  - rdkit
+  - tqdm
+  - cudatoolkit
