@@ -2,7 +2,7 @@
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
-from transformer.Modules import ScaledDotProductAttention
+from SmilesTransformer.model.transformer.Modules import ScaledDotProductAttention
 
 
 class MultiHeadAttention(nn.Module):

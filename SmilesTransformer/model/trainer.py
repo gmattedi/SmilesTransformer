@@ -6,8 +6,8 @@ import time
 import math
 from tqdm import tqdm
 import torch
-from eval import eval_performance
-import transformer.Constants as Constants
+from model.eval import eval_performance
+import model.transformer.Constants as Constants
 
 from utils import logger
 

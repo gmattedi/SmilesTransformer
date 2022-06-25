@@ -4,8 +4,8 @@ from typing import Optional
 import pandas as pd
 import torch.utils.data
 
-from loaders.base import SeqDataset, paired_collate_fn, augment_smiles
-from tokenizer import load_mapping, RegexTokenizer, dense_onehot
+from SmilesTransformer.loaders.base import SeqDataset, paired_collate_fn, augment_smiles
+from SmilesTransformer.tokenizer import load_mapping, RegexTokenizer, dense_onehot
 
 
 def build_loader(

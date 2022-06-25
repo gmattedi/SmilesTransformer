@@ -3,7 +3,7 @@ This script handling the calculation of performance and loss.
 '''
 import torch
 import torch.nn.functional as F
-import transformer.Constants as Constants
+import model.transformer.Constants as Constants
 
 
 def eval_performance(pred, gold, smoothing=False):

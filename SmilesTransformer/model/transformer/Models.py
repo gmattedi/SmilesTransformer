@@ -2,8 +2,8 @@
 import torch
 import torch.nn as nn
 import numpy as np
-import transformer.Constants as Constants
-from transformer.Layers import EncoderLayer, DecoderLayer
+import model.transformer.Constants as Constants
+from model.transformer.Layers import EncoderLayer, DecoderLayer
 
 
 class Encoder(nn.Module):

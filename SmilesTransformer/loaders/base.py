@@ -2,7 +2,7 @@ import numpy as np
 import torch.utils.data
 from rdkit import Chem
 
-import transformer.Constants as Constants
+import model.transformer.Constants as Constants
 
 
 class SeqDataset(torch.utils.data.Dataset):

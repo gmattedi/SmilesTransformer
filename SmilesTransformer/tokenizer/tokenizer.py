@@ -3,7 +3,7 @@ from typing import Sequence, Dict, List, Tuple
 
 import numpy as np
 
-from transformer import Constants
+from model.transformer import Constants
 
 # TODO cite
 SMI_REGEX_PATTERN = r"(\%\([0-9]{3}\)|\[[^\]]+]|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\||\(|\)|\.|=|#|-|\+|\\|\/|:|~|@|\?|>>?|\*|\$|\%[0-9]{2}|[0-9])"
@@ -75,7 +75,7 @@ def dense_onehot(tokens, token2idx: Dict[str, int]):
 if __name__ == '__main__':
     import pandas as pd
 
-    chembl = pd.read_csv('../data/chembl_30/chembl_30_chemreps_proc_train.csv.gz').sample(100)
+    chembl = pd.read_csv('../../data/chembl_30/chembl_30_chemreps_proc_train.csv.gz').sample(100)
     smiles = chembl.SMILES.values
 
     token2idx = build_vocabulary(smiles)

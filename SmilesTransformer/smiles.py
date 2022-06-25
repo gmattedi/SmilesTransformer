@@ -1,13 +1,11 @@
 import torch.utils.data
 from rdkit import Chem, RDLogger
 
-from loaders import build_loader
-from trainer import train
-from transformer import Constants
-from transformer.Models import Transformer
-from transformer.Optim import ScheduledOptim
-from utils import logger
-from utils import output2smiles
+from SmilesTransformer.loaders import build_loader
+from SmilesTransformer.model import Transformer, Constants, ScheduledOptim
+from SmilesTransformer.model.trainer import train
+from SmilesTransformer.utils import logger
+from SmilesTransformer.utils import output2smiles
 
 RDLogger.DisableLog('rdApp.*')
 
@@ -16,14 +14,14 @@ logger.info(f'Device: {device}')
 
 logger.info('Creating training loader')
 train_loader, token2idx, idx2token = build_loader(
-    csv_path='data/chembl_30/chembl_30_chemreps_proc_train.csv.gz',
+    csv_path='../data/chembl_30/chembl_30_chemreps_proc_train.csv.gz',
     src_col='SMILES', tgt_col='SMILES', alphabet_path='tokenizer/alphabet.dat',
     sample=100, random_state=123, batch_size=64, num_workers=10, augment_times=1
 )
 
 logger.info('Creating validation loader')
 val_loader, _, _ = build_loader(
-    csv_path='data/chembl_30/chembl_30_chemreps_proc_val.csv.gz',
+    csv_path='../data/chembl_30/chembl_30_chemreps_proc_valid.csv.gz',
     src_col='SMILES', tgt_col='SMILES', alphabet_path='tokenizer/alphabet.dat',
     sample=50, random_state=123, batch_size=64, num_workers=10, augment_times=1
 )

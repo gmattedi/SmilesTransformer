@@ -2,8 +2,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from transformer.Models import Transformer
-from transformer.Beam import Beam
+from model.transformer.Models import Transformer
+from model.transformer.Beam import Beam
 
 
 class Translator(object):
